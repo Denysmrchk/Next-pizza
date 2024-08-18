@@ -39,14 +39,31 @@ export const CheckboxFiltersGroup: React.FC<Props> = ({
     ? items.filter((item) =>
         item.text.toLowerCase().includes(searchValue.toLowerCase()),
       )
-    : defaultItems?.slice(0, limit);
+    : (defaultItems || items)?.slice(0, limit);
 
   const onChangeSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchValue(e.target.value);
   };
+  if (loading) {
+    return (
+      <div className={className}>
+        <p className="font-bold mb-3">{title}</p>
 
+        {...Array(limit)
+          .fill(0)
+          .map((_, index) => (
+            <div
+              key={index}
+              className="w-full mb-4 h-6 bg-gray-200 rounded-[8px] animate-pulse"
+            />
+          ))}
+
+        <div className="w-28 h-4 bg-gray-200 rounded-[8px] animate-pulse" />
+      </div>
+    );
+  }
   return (
-    <div>
+    <div className={className}>
       <p className="font-bold mb-3">{title}</p>
 
       {showAll && (
@@ -61,16 +78,18 @@ export const CheckboxFiltersGroup: React.FC<Props> = ({
       )}
 
       <div className="flex flex-col gap-4 max-h-96 pr-2 overflow-auto scrollbar">
-        {items.map((item, index) => (
-          <FilterCheckbox
-            key={index}
-            text={item.text}
-            value={item.value}
-            endAdornment={item.endAdornment}
-            checked={false}
-            onCheckedChange={(ids) => console.log(ids)}
-          />
-        ))}
+        {list &&
+          list.map((item, index) => (
+            <FilterCheckbox
+              key={index}
+              text={item.text}
+              value={item.value}
+              endAdornment={item.endAdornment}
+              checked={selectedIds?.has(item.value)}
+              onCheckedChange={() => onClickCheckbox?.(item.value)}
+              name={name}
+            />
+          ))}
       </div>
       {items.length > limit && (
         <div className={showAll ? "border-t border-t-neutral-100 mt-4" : ""}>
